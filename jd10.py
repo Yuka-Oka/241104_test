@@ -244,13 +244,11 @@ for message in reversed(st.session_state.chat_history):
     
     if message["role"] == "user":
         if message == last_user_message:
-            print("最新の入力（ユーザー）")
-            st.image("./images/postit2_pink.png", width=100)
+            st.image("./images/44ki3.png", width = 170)
             st.write("最新の入力")
             st.code(message["content"], language='java')
             last_user_message = None
         else:
-            print("今ここ（ユーザー）")
             st.code(message["content"], language='java')
             
 
