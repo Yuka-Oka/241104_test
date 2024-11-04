@@ -229,10 +229,12 @@ last_user_message = None
 last_assistant_message = None
 
 for message in reversed(st.session_state.chat_history):
-    if message["role"] == "user" and last_user_message is None:
-        last_user_message = message
-    elif message["role"] == "assistant" and last_assistant_message is None:
+
+    if message["role"] == "assistant" and last_assistant_message is None:
         last_assistant_message = message
+    elif message["role"] == "user" and last_user_message is None:
+        last_user_message = message
+    
     if last_user_message and last_assistant_message:
         break
 
@@ -244,10 +246,14 @@ for message in reversed(st.session_state.chat_history):
         # 最新のユーザーメッセージに画像を表示
         # st.image("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiq6GtEPvcVKJbtC5jYGWL2RrZDdgvwc8SibXHtRzDLkjRI3sTcrM8VdXrcCnO3zOAlfHYm8elVmCoiKj54bDPDo7qXIxng0npye4ccbe8c1NS7mQDGhH62bUYWGejXY1FUlmO1klM2SLb/s800/postit2_pink.png", width=100)
         if message == last_user_message:
+            print("最新の入力（ユーザー）")
             st.write("最新の入力")
             st.code(message["content"], language='java')
+            last_user_message = None
         else:
+            print("今ここ（ユーザー）")
             st.code(message["content"], language='java')
+            
 
     if message["role"] == "assistant":
         # if self_sys_prompt == my_dict[list(my_dict.keys())[0]]:
@@ -256,14 +262,11 @@ for message in reversed(st.session_state.chat_history):
         #     st.markdown(list(my_dict.keys())[1])
         # else:
         #     st.markdown(list(my_dict.keys())[2])
-
         if message == last_assistant_message:
+            print("最新の出力（アシスタント）")
             st.write("最新の出力")
-            # message["content"] = ''.join(message["content"])  # タプルの各要素を結合して文字列に
-
             st.write(message["content"])
+            last_assistant_message = None
         else:
+            print("今ここ（アシスタント）")
             st.write(message["content"])
-
-    last_user_message = None
-    last_assistant_message = None
