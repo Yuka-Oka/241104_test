@@ -35,7 +35,7 @@ custom_css = """
 # カスタムCSSを適用
 st.markdown(custom_css, unsafe_allow_html=True)
 
-st.title("Java エラー解説チャット")
+st.title("エラー解説チャット")
 
 ############ github用 ############
 JDoodle_Client_ID = st.secrets["client_id"]
@@ -85,6 +85,24 @@ st.sidebar.markdown("<h2 style='font-size: 22px;'>②Javaファイルアップ�
 
 # ファイルアップロード（サイドバー）
 uploaded_file = st.sidebar.file_uploader(" ", type=["java"])
+
+# サイドバーに小さい文字を表示
+st.sidebar.markdown(
+    """
+    <style>
+    .small-text {
+        font-size: 12px;  /* 必要に応じてサイズを調整 */
+        color: #333333;   /* 色も指定可能 */
+    }
+    .spaced-text {
+        margin-top: 5px;  /* ここで改行の幅を指定 */
+    }
+    </style>
+    <p class="small-text">解説が表示されたら、</p>
+    <p class="small-text">ファイル名の右の x ボタンを押してください</p>
+    """,
+    unsafe_allow_html=True
+)
 
 # 関数response_generation：OpenAI APIを用いて応答生成
 # 引数　error_code: コード＋エラー文、prom: システムへのプロンプト
