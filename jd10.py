@@ -1,5 +1,24 @@
+# 2024/11/04
+# cd Library/Mobile\ Documents/com~apple~CloudDocs/stream241003_jd
+
+# 会話履歴を残す（session_satte'chat_history'）
+
+# 機能追加していきたい
+# 外部ファイルに入力と出力を記録
+# 履歴のみ表示、応答生成時は表示なし
+
+# コンパイルできた時に、出力を表示
+# ラジオボタンで解説のレベルを変更（手動）
+
+# 最新のチャットを一番上に表示
+# プロンプトのレベル名を変更
+
+# javacして、解説生成　でコマンドfして実験jdoodle使うかの確認をする
+
 import openai
+############ requirements.txt ############
 # openai==0.28
+##########################################
 import os
 import streamlit as st
 import subprocess
@@ -37,6 +56,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 st.title("エラー解説チャット")
 
+
 ############ github用 ############
 JDoodle_Client_ID = st.secrets["client_id"]
 JDoodle_Client_Secret = st.secrets["client_secret"]
@@ -54,6 +74,10 @@ if 'chat_history' not in st.session_state:
 # session_satte "input_history"：入力履歴保存
 if 'input_history' not in st.session_state:
     st.session_state.input_history = []
+
+# session_satte "down_log"：ダウンロードする内容入れる用
+if "down_log" not in st.session_state:
+    st.session_state.down_log = []
 
 # 辞書my_dict: プロンプトを格納
 my_dict = {
@@ -85,6 +109,7 @@ st.sidebar.markdown("<h2 style='font-size: 22px;'>②Javaファイルアップ�
 
 # ファイルアップロード（サイドバー）
 uploaded_file = st.sidebar.file_uploader(" ", type=["java"])
+
 
 # サイドバーに小さい文字を表示
 st.sidebar.markdown(
@@ -213,6 +238,18 @@ def file_check(java_code_d):
 
     st.session_state.input_history.append(java_code_d)
 
+# 関数prom_hyouzi: 選択したプロンプトに対応するボタン
+# 引数self_sys_prompt_d: その時のself_sys_prompt_d
+# 返り値（簡潔に教えて", "もう少し教えて", "色々知りたい"）のどれか
+def prom_hyouzi(self_sys_prompt_d):
+    ppp_d = ""
+    if self_sys_prompt_d == my_dict[list(my_dict.keys())[0]]:
+        ppp_d = list(my_dict.keys())[0]
+    elif self_sys_prompt_d == my_dict[list(my_dict.keys())[1]]:
+        ppp_d = list(my_dict.keys())[1]
+    else:
+        ppp_d = list(my_dict.keys())[2]
+    return ppp_d
 
 # アップロードされたファイルをjdoodleでjavac
 if uploaded_file:
@@ -235,12 +272,36 @@ if uploaded_file:
 
     st.session_state.chat_history.append({"role": "assistant", "content": sys_response})
     st.session_state.chat_history.append({"role": "user", "content": string_data})
+
+    ppp = prom_hyouzi(self_sys_prompt)
     
     append_to_file("入力：", 'memo.txt')
     append_to_file(string_data, 'memo.txt')
-    append_to_file("応答：", 'memo.txt')
+    append_to_file("プロンプト", 'memo.txt')
+    append_to_file(ppp, 'memo.txt')
+    append_to_file("解説：", 'memo.txt')
     append_to_file(sys_response, 'memo.txt')
-    append_to_file("", 'memo.txt')
+    append_to_file("#############################################################", 'memo.txt')
+
+    st.session_state.down_log.append("入力：")
+    st.session_state.down_log.append(string_data)
+    st.session_state.down_log.append("")
+    st.session_state.down_log.append("プロンプト：")
+    st.session_state.down_log.append(ppp)
+    st.session_state.down_log.append("")
+    st.session_state.down_log.append("解説：")
+    st.session_state.down_log.append(sys_response)
+    st.session_state.down_log.append("#############################################################")
+
+# 入力内容をテキスト形式に変換
+down_log = "\n".join(st.session_state.down_log)
+
+st.sidebar.download_button(
+    label="これまでのやり取りをダウンロード",
+    data = down_log,
+    file_name = "this_is_log.txt"
+)
+
 
 # 最新のメッセージを取得
 last_user_message = None
@@ -263,7 +324,6 @@ for message in reversed(st.session_state.chat_history):
     if message["role"] == "user":
         if message == last_user_message:
             st.image("./images/44ki3.png", width = 170)
-            st.write("最新の入力")
             st.code(message["content"], language='java')
             last_user_message = None
         else:
@@ -271,17 +331,13 @@ for message in reversed(st.session_state.chat_history):
             
 
     if message["role"] == "assistant":
-        # if self_sys_prompt == my_dict[list(my_dict.keys())[0]]:
-        #     st.markdown(list(my_dict.keys())[0])
-        # elif self_sys_prompt == my_dict[list(my_dict.keys())[1]]:
-        #     st.markdown(list(my_dict.keys())[1])
-        # else:
-        #     st.markdown(list(my_dict.keys())[2])
         if message == last_assistant_message:
-            print("最新の出力（アシスタント）")
-            st.write("最新の出力")
             st.write(message["content"])
+            st.write("----------------------------")
             last_assistant_message = None
         else:
-            print("今ここ（アシスタント）")
             st.write(message["content"])
+            st.write("----------------------------")
+
+    
+    
