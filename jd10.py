@@ -243,10 +243,9 @@ for message in reversed(st.session_state.chat_history):
 for message in reversed(st.session_state.chat_history):
     
     if message["role"] == "user":
-        # 最新のユーザーメッセージに画像を表示
-        # st.image("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiq6GtEPvcVKJbtC5jYGWL2RrZDdgvwc8SibXHtRzDLkjRI3sTcrM8VdXrcCnO3zOAlfHYm8elVmCoiKj54bDPDo7qXIxng0npye4ccbe8c1NS7mQDGhH62bUYWGejXY1FUlmO1klM2SLb/s800/postit2_pink.png", width=100)
         if message == last_user_message:
             print("最新の入力（ユーザー）")
+            st.image("./images/postit2_pink.png", width=100)
             st.write("最新の入力")
             st.code(message["content"], language='java')
             last_user_message = None
